@@ -11,14 +11,14 @@ import (
 
 func TestRun(t *testing.T) {
 	cases := []struct {
+		files      map[string]string
 		name       string
 		version    string
-		args       []string
 		stdin      string
-		files      map[string]string
 		wantOut    string
-		wantCode   int
 		wantErrSub string
+		args       []string
+		wantCode   int
 	}{
 		{
 			name:    "default count",
@@ -45,14 +45,13 @@ func TestRun(t *testing.T) {
 			wantOut: "c\nd\ne\n",
 		},
 		{
-			// cmd-tail's byte mode emits the trailing bytes as one stream
-			// item (here "rld\n"), and the line-oriented byte sink appends a
-			// record newline — so -c output ends with an extra "\n" vs GNU.
-			// See cmd-tail COMPATIBILITY.md.
+			// cmd-tail's byte mode emits the trailing bytes verbatim: -c 4 of
+			// "hello\nworld\n" is exactly "rld\n" (GNU-compatible — the earlier
+			// extra record newline was removed upstream).
 			name:    "bytes",
 			args:    []string{"tail", "-c", "4"},
 			stdin:   "hello\nworld\n",
-			wantOut: "rld\n\n",
+			wantOut: "rld\n",
 		},
 		{
 			name:       "invalid lines value errors",
